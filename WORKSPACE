@@ -408,3 +408,10 @@ doxygen_repository(
         "1.12.0",
     ],
 )
+
+http_archive(
+    name = "aos",
+    sha256 = "0e5c64a2599a6e26c6a03d6162242d231ecc0de219534c38cb4402171def21e9",
+    strip_prefix = "aos-beaad02357c2449d764b8fe10bfab2114f51add9",
+    url = "https://github.com/RealtimeRoboticsGroup/aos/archive/beaad02357c2449d764b8fe10bfab2114f51add9.tar.gz",
+)

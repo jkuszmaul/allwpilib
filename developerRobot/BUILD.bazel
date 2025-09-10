@@ -1,0 +1,85 @@
+load("@rules_pkg//:mappings.bzl", "pkg_filegroup", "pkg_files")
+load("@rules_java//java:defs.bzl", "java_binary")
+load("//shared/bazel/rules:cc_rules.bzl", "wpilib_cc_library", "wpilib_cc_shared_library", "wpilib_cc_static_library")
+load("@aos//frc/downloader:downloader.bzl", "aos_downloader", "aos_downloader_dir")
+
+cc_binary(
+    name = "cpp_static",
+    srcs = ["src/main/native/cpp/Robot.cpp"],
+    deps = ["//wpilibc"],
+)
+
+cc_binary(
+    name = "cpp_shared",
+    srcs = ["src/main/native/cpp/Robot.cpp"],
+    dynamic_deps = [
+        "//wpilibc:shared/wpilibc",
+        "//datalog:shared/datalog",
+        "//hal:shared/wpiHal",
+        "//ntcore:shared/ntcore",
+        "//wpimath:shared/wpimath",
+        "//wpinet:shared/wpinet",
+        "//wpiutil:shared/wpiutil",
+    ],
+    deps = ["//wpilibc"],
+)
+
+pkg_files(
+    name = "pkg_cpp_shared",
+    srcs = [
+        ":cpp_shared",
+    ],
+    include_runfiles = True,
+)
+
+aos_downloader_dir(
+    name = "pkg_cpp_runfiles",
+    srcs = [":pkg_cpp_shared"],
+    dir = ".",
+    flatten = False,
+)
+
+aos_downloader(
+    name = "deploy_cpp_shared",
+    srcs = [
+        ":cpp_static",
+        #":pkg_cpp_shared",
+    ],
+    dirs = [
+        ":pkg_cpp_runfiles",
+        ":pkg_java_runfiles",
+    ],
+    target_compatible_with = ["@platforms//os:linux"],
+    target_type = "systemcore",
+)
+
+java_binary(
+    name = "java",
+    srcs = [
+        "src/main/java/frc/robot/Main.java",
+        "src/main/java/frc/robot/Robot.java",
+    ],
+    main_class = "frc.robot.Main",
+    deps = [
+        "//hal:hal-java",
+        "//ntcore:ntcore-java",
+        "//wpilibj:wpilibj-java",
+        "//wpimath:wpimath-java",
+        "//wpiutil:wpiutil-java",
+    ],
+)
+
+pkg_files(
+    name = "pkg_java",
+    srcs = [
+        ":java",
+    ],
+    include_runfiles = True,
+)
+
+aos_downloader_dir(
+    name = "pkg_java_runfiles",
+    srcs = [":pkg_java"],
+    dir = ".",
+    flatten = False,
+)
